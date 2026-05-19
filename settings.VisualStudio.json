@@ -1,0 +1,9 @@
+/* Visual Studio Settings File */
+{
+  "environment.visualExperience.enableThemeAgnosticFonts": false,
+  "environment.visualExperience.useCompactSpacing": false,
+  "environment.visualExperience.titleCaseMenus": true,
+  "environment.visualExperience.colorTheme": "one-dark-pro-2026",
+  "toolsForUnity.codeEdition.enableMessageClassification": true,
+  "textEditor.general.display.bracePairColorization": false
+}
