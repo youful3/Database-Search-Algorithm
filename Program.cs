@@ -88,14 +88,14 @@ namespace nonlinearSearch
             { "Khajista Zainab", "G", "", "Finance", "Director" },
             { "Khawaja Haris", "M", "Green", "Socials", "Director" },
             { "Layma Shah", "G", "", "Security", "Member" },
-            { "M. Arham", "M", "Mauve", "Publications", "Member" },
-            { "M. Ayan", "M", "Silver", "Liaison", "Member" },
-            { "M. Ayan", "M", "White", "Outreach", "Member" },
-            { "M. Ayan Khan", "M", "Red", "Marketing", "Director" },
-            { "M Hasen Waqar", "M", "Yellow", "Logistics", "Member" },
-            { "M. Mohib", "M", "Green", "IT", "Co-director" },
-            { "M. Rafay Abbasi", "M", "Purple", "Registration", "Member" },
-            { "M Zayyan Zohaib", "M", "Silver", "IT", "Member" },
+            { "Arham Goroya", "M", "Mauve", "Publications", "Member" },
+            { "Ayan", "M", "Silver", "Liaison", "Member" },
+            { "Ayan", "M", "White", "Outreach", "Co-director" },
+            { "Ayan Khan", "M", "Red", "Marketing", "Director" },
+            { "Hasen Waqar", "M", "Yellow", "Logistics", "Member" },
+            { "Mohib", "M", "Green", "IT", "Co-director" },
+            { "Rafay Abbasi", "M", "Purple", "Registration", "Member" },
+            { "Zayyan Zohaib", "M", "Silver", "IT", "Member" },
             { "Maaz Affan", "M", "Silver", "Security", "Member" },
             { "Maha Zulfiqar", "G", "", "Publications", "Member" },
             { "Mahad Ehtesham", "M", "Blue", "Outreach", "Director" },
@@ -161,7 +161,7 @@ namespace nonlinearSearch
             { "Yashfa Maheen", "G", "", "IT", "Member" },
             { "Yumainah Maryam", "M", "White", "Security", "Member" },
             { "Yusra Iqbal", "G", "", "Media", "Director" },
-            { "Zahid", "M", "Blue", "Outreach", "Co-director" },
+            { "Zahid", "M", "Blue", "Outreach", "Member" },
             { "Zain Ali", "M", "Green", "Security", "Member" },
             { "Zaina Zeeshan", "G", "", "Liaison", "Member" },
             { "Zaina Zeeshan ", "G", "", "Liaison", "Member" },
@@ -175,7 +175,7 @@ namespace nonlinearSearch
             { "Zunaira Hasan", "G", "", "Logistics", "Member" },
             { "Zyna Malik", "G", "", "IT", "Member" }
         };
-        static string[] departments = new string[] 
+        static string[] departments =  
         {
             "EC",
             "Liaison",
@@ -191,8 +191,20 @@ namespace nonlinearSearch
             "Socials",
             "Security" 
         };
-        static string[] positions = new string[] {"Director", "Co-director", "Member"};
-        static string[] executiveCouncil = new string[] { "Secretary General", "Director General", "Under Secretary General", "Head of Host Team" };
+        static string[] positions = {"Director", "Co-director", "Member"};
+        static string[] executiveCouncil = { "Secretary General", "Director General", "Under Secretary General", "Head of Host Team" };
+        static string[] sections = {
+                                "Blue",
+                                "Green",
+                                "Mauve",
+                                "Orange",
+                                "Purple",
+                                "Red",
+                                "Silver",
+                                "White",
+                                "Yellow"
+                            };
+        
 
         // Fields for the search
         static string firstName = "";
@@ -221,7 +233,17 @@ namespace nonlinearSearch
 
                 // Displaying the different fields to pick from for the search
                 Console.WriteLine("BMIDC Rebirth\nHost Team Database\n\n");
-                Console.WriteLine("Search fields:\n\n1. First Name\n2. Department\n3. Position\n4. Section\n5. Gender\n6. Clear fields\n\n7. Begin search");
+                Console.WriteLine
+                    (
+                    "Search fields:\n\n" +
+                    "1. First Name\n" +
+                    "2. Department\n" +
+                    "3. Position\n" +
+                    "4. Section\n" +
+                    "5. Gender\n" +
+                    "6. Clear fields\n\n" +
+                    "7. Begin search"
+                    );
 
                 // Taking input for which field the user would like to search from
                 Console.Write("\nPlease enter the number corrosponding to the field you would like to set: "); menuChoice = Console.ReadLine();
@@ -234,8 +256,6 @@ namespace nonlinearSearch
                 {
                     while (choiceBool)
                     {
-                        // Utilising booleans for verification of values entered
-                        bool alphabetVerified;
 
                         clear();
                         if (errorDisplay) Console.WriteLine("ERROR! Your input either contained a symbol, a space, or was null. Please enter a valid value.");
@@ -243,55 +263,76 @@ namespace nonlinearSearch
                         Console.WriteLine("Enter the *FIRST* name of the person you would like to search for. Make sure there are no symbols and no spaces in the name.");
                         menuChoice = Console.ReadLine();
 
-                        if (firstName == "") { errorDisplay = true; }
+
+                        if (menuChoice == "") { errorDisplay = true; }
                         else
                         {
                             // Breaking down the whole word into individual characters in an array
-                            char[] nameBroken = (firstName.ToUpper()).ToCharArray();
+                            char[] nameBroken = firstName.ToUpper().ToCharArray();
                             foreach (char character in nameBroken)
                             {
-                                alphabetVerified = false;
-                                foreach (char letter in alphabet)
-                                {
-                                    // If anyone of the characters is equal to the alphabet then it is flagged is correct
-                                    if (letter == character)
-                                    {
-                                        alphabetVerified = true;
-                                    }
-                                }
-
-                                // If the character from the nameBroken array is not in the alphabet, then it means it is invalid and must be re-entered
-                                // For this we will use a selection statement further
-                                if (!alphabetVerified)
+                                // Using selection to verify if the character is the alphabet
+                                if (!(alphabet.Contains(character)))
                                     errorDisplay = true;
                             }
-                            
                         }
 
                         // If all is set and done and no errorDisplay message is active, than the loop will close and return
-                        // the user to the main menu
-                        if (!errorDisplay) choiceBool = false;
+                        // the user to the main menu, and this selection statement will also set the first name for the search
+                        if (!errorDisplay)
+                        {
+                            choiceBool = false;
+                            firstName = menuChoice;
+                        }
                     }
                     firstName = menuChoice;
-                } 
+                }
                 else if (menuChoice == "2") // Department selection
                 {
                     while (choiceBool)
                     {
+                        // Declaring and initialising menu specific local variables for the department selection menu
+                        bool isPostEC = executiveCouncil.Contains(post);
+                        /* This variable is used to store the value of the department before the department is changed,
+                         so that if the department is changed from EC to something else, and the post is one of the EC posts,
+                         then it can be replaced with a default value to avoid errors */
+                        string deptBefore = dept;
+                        // Used to check if the position selected is not in the EC
+                        bool isPostDept = positions.Contains(post);
+                        // This variable is used to check if the department is currently set to EC for the position selection menu
+                        bool isPositionSet = post != "";
+                        bool flagged = false;
+                        /* Declaring now to initialise later based on the boolean logic,
+                           as it is not necessary to initialise it if the position is not set, or if the position is in the department positions */
+                        bool isNewPostEC;
+
+
                         clear();
-                        
+
                         Console.WriteLine("The following is a list of all the departments in the database, and their assigned numbers:\n");
-                        
+
                         // Using a for loop to display each department easier
                         for (int department = 0; department < departments.Length; department++)
                         {
                             Console.WriteLine($"{(department + 1)}. {departments[department]}");
+
+                            // Adding a further selection statement warning the user if the position they have selected is in the EC,
+                            // as that will change the options for the position selection
+                            if (departments[department] == "EC" && isPositionSet)
+                            {
+                                if (!isPostEC)
+                                    Console.WriteLine($">>> NOTE: The position for your search has been set to {post} which is not in the Executive Council; Setting it to the Executive Council will reset the position.\n");
+                                else if (isPostEC)
+                                    Console.WriteLine($">>> NOTE: The position for your search is currently set to {post} which is in the Executive Council; Setting the department to anything other than the Executive Council will reset the position.\n");
+                            }
                         }
                         Console.WriteLine(); // This acts as a full \n to create neatness
-                        
+
+                        // Initialising for boolean logic
+                        isNewPostEC = executiveCouncil.Contains(post);
 
                         if (dept != "") // Presence check
-                            Console.WriteLine("The department for the search is currently set to ", dept);
+                            Console.WriteLine("The department for the search is currently set to " + dept);
                         if (errorDisplay) // Displays a message if the last value was invalid
                             Console.WriteLine("Your choice was invalid. Please enter a valid choice.");
 
@@ -305,23 +346,27 @@ namespace nonlinearSearch
                         bool isParsable = int.TryParse(menuChoice, out deptChoice);
                         errorDisplay = false;
 
-                        // Using the parsed statement
-                        if (isParsable)
-                        {
-                            // Using a range check
-                           if (deptChoice >= 1 && deptChoice <= departments.Length)
-                           {
-                                // Reducing the value by 1 to fit it into range for the array's index
-                                deptChoice--;
-                                dept = departments[deptChoice];
-                           }
-                           else
-                           {
-                                errorDisplay = true;
-                           }
-                        }
-                        else { errorDisplay = true; }
+                        // Using boolean logic as much as possible to decide if the post must be reset or not
+                        flagged = (isNewPostEC && !isPostEC) || (!isNewPostEC && isPostEC);
 
+                        // Using the parsed statement
+                        if (isParsable && inRange(deptChoice, departments))
+                        {
+                            // Reducing the value by 1 to fit it into range for the array's index
+                            deptChoice--;
+                            dept = departments[deptChoice];
+
+                            // Resetting the position if the boolean logic for flagged comes back as true
+                            if (flagged)
+                            {
+                                post = "";
+                            }
+                        }
+                        else
+                        { errorDisplay = true; }
+
+
+                        // If there is no error, then the loop will end and the user will be returned to the main menu
                         if (!errorDisplay)
                             choiceBool = false;
                     }
@@ -339,6 +384,12 @@ namespace nonlinearSearch
                         If the department is changed to something else after being set to the EC, and the position is one of the EC
                         positions, then that position will be replaced. This has already been coded into the department selection.
                         
+                        Further note that inRange cannot be used here as there are two possible lists with varying lengths.
+                        Wese tho flowkirkenuinely I could do something but its needlessly complicated especially if this code is to be
+                        recycled for future use.
+
+                        This menu is a sole exception.
+
                          */
 
                         clear();
@@ -346,14 +397,14 @@ namespace nonlinearSearch
 
                         // Basic display message
                         Console.WriteLine("The following is a list of positions and their associated numbers:\n");
-                        
+
                         // Setting up the parse variables a little late but still
                         int choiceInteger;
                         bool isParsable;
-                        
+
                         //// Utilising selection statement to print the positions
                         // Both utilise for loops to work
-                       if (dept == "EC") // <------ This selection statement prints only the EC positions
+                        if (dept == "EC") // <------ This selection statement prints only the EC positions
                             for (int posit = 0; posit < executiveCouncil.Length; posit++)
                             {
                                 Console.WriteLine($"{posit + 1}. {executiveCouncil[posit]}");
@@ -372,23 +423,69 @@ namespace nonlinearSearch
                         isParsable = int.TryParse(menuChoice, out choiceInteger);
                         choiceInteger--; // Decrementing the integer to make it usable for the array
 
+                        // Checking if the input value is within the given range for the menu
+
                         // Using a boolean that works based off of whether or not the dept is set to the EC or not,
                         // stored into a variable for effeciency
                         bool isEC = dept == "EC";
 
                         if (isParsable) // Selection statement which only works in the case of a value that is parsable
                         {
-                            if (isEC && choiceInteger >= 0 && choiceInteger < 3) // This checks if the value is in range for the EC posts
+                            // This checks if the value is in range for the EC posts
+                            if (isEC && inRange(choiceInteger, executiveCouncil))
                                 post = executiveCouncil[choiceInteger];
-                            else if (!isEC && choiceInteger >= 0 && choiceInteger < 4) // This checks of the value is in range for the default posts
+                            else if (!isEC && inRange(choiceInteger, positions)) // This checks of the value is in range for the default posts
                                 post = positions[choiceInteger];
                             else
                                 errorDisplay = false;
-                        } 
+                        }
                         else { errorDisplay = false; }
 
                         if (!errorDisplay)
                             choiceBool = false;
+                    }
+                }
+                else if (menuChoice == "4")
+                {
+                    while (choiceBool)
+                    {
+                        clear();
+
+                        // Case statement to display the current section selected for the search
+                        if (section == "")
+                            Console.WriteLine("No section specified for search");
+                        else
+                            Console.WriteLine($"Current section specified for search: {section}");
+
+                        // Setting up the parse variables a little late but still
+                        int choiceInteger = 0;
+                        bool isParsable;
+
+                        // List of options for the section selection
+                        Console.WriteLine("The following is a list of positions and their associated numbers:\n");
+                        for (int sect = 0; sect < sections.Length; sect++)
+                        {
+                            Console.WriteLine($"{sect + 1}. {departments[sect]}");
+                        }
+
+                        // Taking input into menuChoice
+                        Console.Write("\nType the number associated with the section you would like to set for the search: ");
+                        menuChoice = Console.ReadLine();
+
+                        // Parsing the choice through TryParse
+                        isParsable = int.TryParse(menuChoice, out choiceInteger);
+                        choiceInteger--; // Decrementing the integer to make it usable for the array
+
+                        // Utilising selection statement to validate the input 
+                        if (!isParsable || !inRange(choiceInteger, sections))
+                            errorDisplay = true;
+                        else
+                        {
+                            // Setting the section variable to the section selected and ending the loop if there is no error
+                            section = sections[choiceInteger];
+                            errorDisplay = false;
+                            choiceBool = false;
+                        }
                     }
                 }
                 else if (menuChoice == "5") // Menu for gender selection
@@ -414,22 +511,54 @@ namespace nonlinearSearch
                         if (menuChoice == "1")
                             gender = "M";
                         else if (menuChoice == "2")
-                            gender = "G";  // This exists to simply do NOTHING and send the user back to the menu
+                            gender = "G";
                         else
                             errorDisplay = true;
 
                         // Selection to remove the errorDisplay boolean for future use
-                        if (menuChoice == "1" || menuChoice == "2" || menuChoice == "3")
+                        if (menuChoice == "1" || menuChoice == "2")
                         {
                             errorDisplay = false;
                             choiceBool = false;
                         }
                     }
-                }   
+                }
+                else if (menuChoice == "6") // Clear fields menu
+                {
+                    clear();
+
+                    // Taking confirmation for the clearing of the fields to avoid accidental clearing
+                    Console.WriteLine("This will reset/wipe all fields that you have currently set." + "\n" +
+                                      "Are you sure you would like to continue?");
+                    Console.Write("To confirm, enter Y, and to return to menu without resetting fields press [ENTER]: ");
+                    menuChoice = Console.ReadLine();
+                    menuChoice = menuChoice.ToUpper();
+
+                    Console.WriteLine(); // For neatness ofc
+
+                    // Using selection to reset the fields if the user confirms, and to return to the menu if they dont confirm
+                    if (menuChoice == "Y" || menuChoice == "YES")
+                    {
+                        firstName = "";
+                        section = "";
+                        dept = "";
+                        post = "";
+                        Console.WriteLine("Clearing fields...");
+                    }
+                    else
+                        Console.WriteLine("Fields not cleared. Returning to menu...");
+
+                    // Pausing the menu to let the user read what's actually happening before returning to the menu
+                    Thread.Sleep(2500);
+                }
             }
         }
 
-
+        // Method to check if an input index is within the range of an array, used for validation of menu choices
+        static bool inRange<T>(int inputIndex, T[] array) 
+        {
+            return inputIndex >= 0 && inputIndex < array.Length;
+        }
 
         static void clear()
         {
