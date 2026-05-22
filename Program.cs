@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection.PortableExecutable;
@@ -8,8 +9,9 @@ namespace nonlinearSearch
 {
     class teamDatabase
     {
+        #region
         // Host team arrays
-        static string[,] hostTeam = new string[,]
+        static string[,] hostTeam =
         {
             { "Abdul Ahad", "M", "Purple", "IT", "Member" },
             { "Abdul Hadi", "M", "White", "Security", "Member" },
@@ -176,7 +178,7 @@ namespace nonlinearSearch
             { "Zunaira Hasan", "G", "", "Logistics", "Member" },
             { "Zyna Malik", "G", "", "IT", "Member" }
         };
-        static string[] departments =  
+        static string[] departments =
         {
             "EC",
             "Liaison",
@@ -190,9 +192,9 @@ namespace nonlinearSearch
             "Publications",
             "Registration",
             "Socials",
-            "Security" 
+            "Security"
         };
-        static string[] positions = {"Director", "Co-director", "Member"};
+        static string[] positions = { "Director", "Co-director", "Member" };
         static string[] executiveCouncil = { "Secretary General", "Director General", "Under Secretary General", "Head of Host Team" };
         static string[] sections = {
                                 "Blue",
@@ -205,7 +207,7 @@ namespace nonlinearSearch
                                 "White",
                                 "Yellow"
                             };
-        
+
 
         // Fields for the search
         static string firstName = "";
@@ -220,7 +222,8 @@ namespace nonlinearSearch
         static bool errorDisplay = false; // This boolean will be used to explicitly state if the value entered is invalid
         static string menuChoice = "";
         static char[] alphabet = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
-        
+        static int fieldsSelected = 0; 
+        static int totalSimilarityPoints = 0;
 
         // List for the search results
         static List<int> searchResults = [];
@@ -228,8 +231,12 @@ namespace nonlinearSearch
         // which will be used to determine if the entry is similar enough to the search name to be a result, and to sort the results by similarity
         static List<float> similarityScores = [];
 
+        #endregion
+
         static void Main(string[] args)
         {
+
+            #region
             clear();
             while (mainLoop)
             {
@@ -237,6 +244,8 @@ namespace nonlinearSearch
                 // as well as clearing the console for neatness
                 searchResults = [];
                 similarityScores = [];
+                totalSimilarityPoints = 0;
+                fieldsSelected = 0;
                 clear();
 
                 // Displaying the different fields to pick from for the search
@@ -475,7 +484,7 @@ namespace nonlinearSearch
                             Console.WriteLine("The following is a list of positions and their associated numbers:\n");
                             for (int sect = 0; sect < sections.Length; sect++)
                             {
-                                Console.WriteLine($"{sect + 1}. {departments[sect]}");
+                                Console.WriteLine($"{sect + 1}. {sections[sect]}");
                             }
 
                             // Taking input into menuChoice
@@ -529,8 +538,9 @@ namespace nonlinearSearch
                         // Selection of gender variable
                         if (menuChoice == "1")
                             gender = "M";
-                        else if (menuChoice == "2") {
-                            gender = "G"; 
+                        else if (menuChoice == "2")
+                        {
+                            gender = "G";
                             section = ""; // Clearing the section
                         }
                         else
@@ -572,113 +582,235 @@ namespace nonlinearSearch
                     // Pausing the menu to let the user read what's actually happening before returning to the menu
                     Thread.Sleep(2500);
                 }
-            }
-        }
 
-        // Method to check if an input index is within the range of an array, used for validation of menu choices
-        static bool inRange<T>(int inputIndex, T[] array) 
-        {
-            return inputIndex >= 0 && inputIndex < array.Length;
-        }
+            #endregion
 
-        // Method to clear the console, used multiple times in the program to make it more user friendly
-        static void clear()
-        {
-            Console.Clear();
-        }
-
-        #region
-
-        /*
-        
-        
-        Method to get search results based on the fields selected,
-        These methods will be the main algorithms behind everything regarding the searches
-        The use of lists will be crucial in all of these contexts
-        
-        >>> First Name:
-        The most process heavy algorithm will be the one that checks for the first name, as that is the most unique identifier, 
-        and will be the most efficient to check first, 
-        as it will reduce the number of entries for the rest of the algorithms to check through significantly, increasing efficiency drastically.
-        Furthermore, it will also need to be dynamic and be able to check for similar names as well. If I was to type in Osarm it would still return me Usarim.
-        If I was to type Adil, it would show Adeel, and if I was to type in Ayan, it would show me all the Ayans. 
-        This is a very important feature as it will make the search much more user friendly and efficient, as the user may not remember 
-        the exact spelling of the name, but they can still find the person they are looking for with a similar name.
-        We will use alot of Mathematical equtions here. I'll honestly have to wing it alot.
-
-
-        */
-
-        #endregion
-
-        //// First name search algorithm
-        static List<int> getFirsNameResults(string searchName, string[,] database, int index /* This is the index of the name within the database */ )
-        {
-            //// Declaring local variable(s) for the algorithm
-            // List of unique characters within the name itself, all uppercase
-            List<char> searchNameBroken = searchName.ToUpper().ToCharArray().Distinct().ToList();
-            int length = searchNameBroken.Count;
-            List<int> results = [];
-            // List of the indices of the results within the database/ List of the similarity scores for each entry in the database,
-
-
-            // *Sigh* this is gonna be a long one
-            // Using a for loop to check each name in the database one by one
-            for (int i = 0; i < database.GetLength(0); i++)
-            {
-                // Breaking down the name in the database into characters as well, and making them uppercase for uniformity
-                List<char> nameInDatabaseBroken = database[i, index].ToUpper().ToCharArray().Distinct().ToList();
-                // Using a value to check if the name in the database is similar enough to the search name to be a result
-                float similarity = 0;
-                // Boolean to decide whether each index is worth it as a result
-                bool validResult = false;
-
-                // Using a for loop to check each character in the search name against the characters in the name in the database
-                for (int j = 0; j < searchNameBroken.Count; j++)
+                else if (menuChoice == "7") // Search initiation
                 {
-                    // Further nesting another for loop
-                    for (int k = 0; k < nameInDatabaseBroken.Count; k++)
+                    // Layout for a single record looks like this: "Abdul Ahad", "M", "Purple", "IT", "Member"
+
+                    // This is where the search results will be generated based on the fields selected,
+                    // and then displayed in a neat way for the user to read through
+                    clear();
+                    Console.WriteLine("Generating search results...");
+
+                    // An interesting solution to deciding which fields are to be used for the search itself.
+                    // We will make an array out of the general fields that will then run through a for loop to see
+                    // How many non-null values there are
+                    string[] generalFields = { section, dept, post, gender };
+                    // Using the for loop to check through the general fields and add the number of non-null fields
+                    foreach (string field in generalFields)
                     {
-                        // If there is a match between the character in the search name and the character in the name in the database,
-                        // then the similarity score will increase by 1
-                        if (searchNameBroken[j] == nameInDatabaseBroken[k])
+                        if (field != "")
+                            fieldsSelected++; // Simple incrementing
+                    }
+                    // Setting up booleans to check if the name and the general fields are null or not, to decide which algorithms to run
+                    bool isNameNull = firstName == "";
+                    bool isGenderNull = gender == "";
+                    bool isSectionNull = section == "";
+                    bool isDeptNull = dept == "";
+                    bool isPostNull = post == "";
+
+                    // Setting total similarity points
+                    totalSimilarityPoints = fieldsSelected * 25;
+                    if (!isNameNull) totalSimilarityPoints += 100;
+
+                    // Using selection statements to decide which algorithms to run based on which fields are null, and which are not
+                    if (!isNameNull)
+                        searchResults = getFirstNameResults(firstName, hostTeam, 0);
+                    else
+                    {
+                        // If the name is null, then all entries in the database will be added to the search results to be filtered through the general field
+                        // algorithms; similarity scores will all be 0 at this point, and will be added to by the general field algorithms based on the fields
+                        // selected
+                        for (int i = 0; i < hostTeam.GetLength(0); i++)
                         {
-                            similarity++;
+                            searchResults.Add(i);
+                            similarityScores.Add(0);
                         }
+                    }
+                    // The rest is protocol
+                    if (!isGenderNull)
+                        setSimilarityGeneralScores(gender, searchResults, hostTeam, 1);
+                    if (!isSectionNull)
+                        setSimilarityGeneralScores(section, searchResults, hostTeam, 2);
+                    if (!isDeptNull)
+                        setSimilarityGeneralScores(dept, searchResults, hostTeam, 3);
+                    if (!isPostNull)
+                        setSimilarityGeneralScores(post, searchResults, hostTeam, 4);
+
+                    // Bubble sort time
+                    while (true)
+                    {
+                        bool swapped = false;
+                        for (int i = 0; i < similarityScores.Count - 1; i++)
+                        {
+                            if (similarityScores[i] < similarityScores[i + 1])
+                            {
+                                // Swap scores
+                                float tempScore = similarityScores[i];
+                                similarityScores[i] = similarityScores[i + 1];
+                                similarityScores[i + 1] = tempScore;
+                                // Swap corresponding search results to maintain the correct pairing
+                                int tempResult = searchResults[i];
+                                searchResults[i] = searchResults[i + 1];
+                                searchResults[i + 1] = tempResult;
+                                swapped = true;
+                            }
+                        }
+
+                        // Breaking the loop if no swaps were made, meaning the list is sorted
+                        // I love you Visual Studio
+                        if (!swapped)
+                            break;
+                    }
+                    
+
+                    clear();
+
+                    // Now that everything is sorted right, we can FINALLY display all of the results neatly.
+                    Console.WriteLine("Search results: ");
+
+                    if (fieldsSelected != 0)
+                        for (int i = 0; i < searchResults.Count; i++)
+                        {
+                            int index = searchResults[i];
+                            // Displaying the record in a neat way, along with the similarity score for the record as well
+                            Console.WriteLine($"{i + 1}. {hostTeam[index, 0]}, {hostTeam[index, 4]} of {hostTeam[index, 3]}");
+                        }
+
+                    // Neatness
+                    Console.Read();
+                }
+            }
+
+
+            // Method to check if an input index is within the range of an array, used for validation of menu choices
+            static bool inRange<T>(int inputIndex, T[] array)
+            {
+                return inputIndex >= 0 && inputIndex < array.Length;
+            }
+
+            // Method to clear the console, used multiple times in the program to make it more user friendly
+            static void clear()
+            {
+                Console.Clear();
+            }
+
+            #region
+            #region
+
+            /*
+
+
+            Method to get search results based on the fields selected,
+            These methods will be the main algorithms behind everything regarding the searches
+            The use of lists will be crucial in all of these contexts
+
+            >>> First Name:
+            The most process heavy algorithm will be the one that checks for the first name, as that is the most unique identifier, 
+            and will be the most efficient to check first, 
+            as it will reduce the number of entries for the rest of the algorithms to check through significantly, increasing efficiency drastically.
+            Furthermore, it will also need to be dynamic and be able to check for similar names as well. If I was to type in Osarm it would still return me Usarim.
+            If I was to type Adil, it would show Adeel, and if I was to type in Ayan, it would show me all the Ayans. 
+            This is a very important feature as it will make the search much more user friendly and efficient, as the user may not remember 
+            the exact spelling of the name, but they can still find the person they are looking for with a similar name.
+            We will use alot of Mathematical equtions here. I'll honestly have to wing it alot.
+
+            >>> General:
+            Since the rest have very similar properties in terms of their searchin within the database, they will be grouped under a single method rather than multiple
+            methods for each field. The method will be able to check for the department, position, and the rest as well.
+
+            */
+
+            #endregion
+
+            //// First name search algorithm
+            static List<int> getFirstNameResults(string searchName, string[,] database, int index /* This is the index of the name within the database */ )
+            {
+                //// Declaring local variable(s) for the algorithm
+                // List of unique characters within the name itself, all uppercase
+                List<char> searchNameBroken = searchName.ToUpper().ToCharArray().Distinct().ToList();
+                int length = searchNameBroken.Count;
+                List<int> localResults = [];
+                // List of the indices of the results within the database/ List of the similarity scores for each entry in the database,
+
+
+                // *Sigh* this is gonna be a long one
+                // Using a for loop to check each name in the database one by one
+                for (int i = 0; i < database.GetLength(0); i++)
+                {
+                    // Breaking down the name in the database into characters as well, and making them uppercase for uniformity
+                    List<char> nameInDatabaseBroken = database[i, index].ToUpper().ToCharArray().Distinct().ToList();
+                    // Using a value to check if the name in the database is similar enough to the search name to be a result
+                    float similarity = 0;
+                    // Boolean to decide whether each index is worth it as a result
+                    bool validResult = false;
+
+                    // Using a for loop to check each character in the search name against the characters in the name in the database
+                    for (int j = 0; j < searchNameBroken.Count; j++)
+                    {
+                        // Further nesting another for loop
+                        for (int k = 0; k < nameInDatabaseBroken.Count; k++)
+                        {
+                            // If there is a match between the character in the search name and the character in the name in the database,
+                            // then the similarity score will increase by 1
+                            if (searchNameBroken[j] == nameInDatabaseBroken[k])
+                            {
+                                similarity++;
+                            }
+                        }
+                    }
+
+                    // Converting the similarity score to a percentage
+                    similarity = (similarity / length) * 100;
+
+                    // Once all the characters have been checked, the similarity score will be divided by the total number of unique characters
+                    // in the search name to get a percentage similarity score. There will also be certain nuemrical thresholds for what counts as a
+                    // result, and what doesnt, which will be determined through selection statements,
+                    if (length >= 4)
+                    {
+                        if (similarity >= 60)
+                            validResult = true;
+                    }
+                    else if (length == 3)
+                    {
+                        if (similarity >= 66.66)
+                            validResult = true;
+                    }
+                    else if (length >= 2)
+                    {
+                        if (similarity == 100)
+                            validResult = true;
+                    }
+
+                    // Selection statement to decide if the results are worth storing or not, based on the boolean validResult
+                    if (validResult)
+                    {
+                        localResults.Add(i);
+                        similarityScores.Add(similarity);
                     }
                 }
 
-                // Converting the similarity score to a percentage
-                similarity = (similarity / length) * 100;
+                return localResults;
+            }
 
-                // Once all the characters have been checked, the similarity score will be divided by the total number of unique characters
-                // in the search name to get a percentage similarity score. There will also be certain nuemrical thresholds for what counts as a
-                // result, and what doesnt, which will be determined through selection statements,
-                if (length >= 4)
+            // Setting similarity scores for the other fields
+            static void setSimilarityGeneralScores(string field, List<int> results, string[,] database, int index)
+            {
+                // Iterating through the results and setting the similarity scores for each result based on the field selected
+                for (int i = 0; i < results.Count(); i++)
                 {
-                    if (similarity >= 60)
-                        validResult = true;
-                }
-                else if (length == 3)
-                {
-                    if (similarity >= 66.66)
-                        validResult = true;
-                }
-                else if (length >= 2)
-                {
-                    if (similarity == 100)
-                        validResult = true;
-                }
-
-                // Selection statement to decide if the results are worth storing or not, based on the boolean validResult
-                if (validResult)
-                {
-                    results.Add(i);
-                    similarityScores.Add(similarity);
+                    // Very complicated selection condition but stay with me here
+                    if (database[results[i] /* <----- Important: results[i] is the index of the result within the database itself. */, index] == field)
+                    {
+                        // If there is a direct match for the field, 20 point will be added to the similarity score
+                        similarityScores[i] += 20;
+                    }
                 }
             }
 
-            return results;
+            #endregion
         }
     }
 }
