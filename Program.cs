@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection.PortableExecutable;
 using System.Transactions;
@@ -106,14 +107,14 @@ namespace nonlinearSearch
             { "Maryam Tariq", "G", "", "Outreach", "Member" },
             { "Mazen Touqeer", "M", "Orange", "Marketing", "Member" },
             { "Meerub fatima", "G", "", "IT", "Director" },
-            { "Mohammed Abdullah Malhi", "M", "Mauve", "EC", "Under Secretary General" },
+            { "Abdullah Malhi", "M", "Mauve", "EC", "Under Secretary General" },
             { "Momina Rehab", "G", "", "Registration", "Member" },
             { "Moosa Obaid", "M", "Purple", "Committee Affairs", "Member" },
-            { "Muhammad Essa Hashmi", "M", "Silver", "Media", "Member" },
-            { "Muhammad Haris", "M", "Silver", "IT", "Member" },
-            { "Muhammad Sagheer", "M", "Mauve", "Socials", "Co-director" },
-            { "Muhammad Shahmeer", "M", "Mauve", "Security", "Member" },
-            { "Muhammad Suleman Kamal", "M", "Blue", "Socials", "Member" },
+            { "Essa Hashmi", "M", "Silver", "Media", "Member" },
+            { "Haris", "M", "Silver", "IT", "Member" },
+            { "Sagheer", "M", "Mauve", "Socials", "Co-director" },
+            { "Shahmeer", "M", "Mauve", "Security", "Member" },
+            { "Suleman Kamal", "M", "Blue", "Socials", "Member" },
             { "Muqeet Bux", "M", "Mauve", "Media", "Co-director" },
             { "Musa Mubashir", "M", "Yellow", "Finance", "Co-director" },
             { "Mustafa", "M", "White", "Security", "Member" },
@@ -218,17 +219,24 @@ namespace nonlinearSearch
         static bool choiceBool = true; // This boolean will be used for the validation loops that we will place for the menu
         static bool errorDisplay = false; // This boolean will be used to explicitly state if the value entered is invalid
         static string menuChoice = "";
-        static char[] alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+        static char[] alphabet = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
         
 
         // List for the search results
         static List<int> searchResults = [];
+        // Used by the first name search algorithm to store the similarity scores for each entry in the database,
+        // which will be used to determine if the entry is similar enough to the search name to be a result, and to sort the results by similarity
+        static List<float> similarityScores = [];
 
         static void Main(string[] args)
         {
             clear();
             while (mainLoop)
             {
+                // Resetting the search results list to clear the previous search results for the new search, and other result lists/arrays
+                // as well as clearing the console for neatness
+                searchResults = [];
+                similarityScores = [];
                 clear();
 
                 // Displaying the different fields to pick from for the search
@@ -449,42 +457,51 @@ namespace nonlinearSearch
                 {
                     while (choiceBool)
                     {
-                        clear();
-
-                        // Case statement to display the current section selected for the search
-                        if (section == "")
-                            Console.WriteLine("No section specified for search");
-                        else
-                            Console.WriteLine($"Current section specified for search: {section}");
-
-                        // Setting up the parse variables a little late but still
-                        int choiceInteger = 0;
-                        bool isParsable;
-
-                        // List of options for the section selection
-                        Console.WriteLine("The following is a list of positions and their associated numbers:\n");
-                        for (int sect = 0; sect < sections.Length; sect++)
+                        if (gender != "G")
                         {
-                            Console.WriteLine($"{sect + 1}. {departments[sect]}");
+                            clear();
+
+                            // Case statement to display the current section selected for the search
+                            if (section == "")
+                                Console.WriteLine("No section specified for search");
+                            else
+                                Console.WriteLine($"Current section specified for search: {section}");
+
+                            // Setting up the parse variables a little late but still
+                            int choiceInteger = 0;
+                            bool isParsable;
+
+                            // List of options for the section selection
+                            Console.WriteLine("The following is a list of positions and their associated numbers:\n");
+                            for (int sect = 0; sect < sections.Length; sect++)
+                            {
+                                Console.WriteLine($"{sect + 1}. {departments[sect]}");
+                            }
+
+                            // Taking input into menuChoice
+                            Console.Write("\nType the number associated with the section you would like to set for the search: ");
+                            menuChoice = Console.ReadLine();
+
+                            // Parsing the choice through TryParse
+                            isParsable = int.TryParse(menuChoice, out choiceInteger);
+                            choiceInteger--; // Decrementing the integer to make it usable for the array
+
+                            // Utilising selection statement to validate the input 
+                            if (!isParsable || !inRange(choiceInteger, sections))
+                                errorDisplay = true;
+                            else
+                            {
+                                // Setting the section variable to the section selected and ending the loop if there is no error
+                                section = sections[choiceInteger];
+                                errorDisplay = false;
+                                choiceBool = false;
+                            }
                         }
-
-                        // Taking input into menuChoice
-                        Console.Write("\nType the number associated with the section you would like to set for the search: ");
-                        menuChoice = Console.ReadLine();
-
-                        // Parsing the choice through TryParse
-                        isParsable = int.TryParse(menuChoice, out choiceInteger);
-                        choiceInteger--; // Decrementing the integer to make it usable for the array
-
-                        // Utilising selection statement to validate the input 
-                        if (!isParsable || !inRange(choiceInteger, sections))
-                            errorDisplay = true;
                         else
                         {
-                            // Setting the section variable to the section selected and ending the loop if there is no error
-                            section = sections[choiceInteger];
-                            errorDisplay = false;
-                            choiceBool = false;
+                            clear();
+                            Console.WriteLine("This field is unavailable to BMI-G (Girls) as they are not assigned sections in the database." +
+                                " Please select a different field for your search, or change your gender field.");
                         }
                     }
                 }
@@ -499,9 +516,11 @@ namespace nonlinearSearch
                             Console.WriteLine("No gender specified for search");
                         else if (gender == "M" || gender == "G")
                             Console.WriteLine($"Current gender specified for search: {gender}");
-
                         // List of options
                         Console.WriteLine("\n1. Male (BMI-B)\n2. Female (BMI-G)\n");
+
+                        if (section != "")
+                            Console.WriteLine("WARNING: If you set the gender to Female, your sections field will be cleared.");
 
                         if (errorDisplay)
                             Console.WriteLine("Invalid choice! Please enter a valid option from those displayed above.");
@@ -510,8 +529,10 @@ namespace nonlinearSearch
                         // Selection of gender variable
                         if (menuChoice == "1")
                             gender = "M";
-                        else if (menuChoice == "2")
-                            gender = "G";
+                        else if (menuChoice == "2") {
+                            gender = "G"; 
+                            section = ""; // Clearing the section
+                        }
                         else
                             errorDisplay = true;
 
@@ -560,9 +581,104 @@ namespace nonlinearSearch
             return inputIndex >= 0 && inputIndex < array.Length;
         }
 
+        // Method to clear the console, used multiple times in the program to make it more user friendly
         static void clear()
         {
             Console.Clear();
+        }
+
+        #region
+
+        /*
+        
+        
+        Method to get search results based on the fields selected,
+        These methods will be the main algorithms behind everything regarding the searches
+        The use of lists will be crucial in all of these contexts
+        
+        >>> First Name:
+        The most process heavy algorithm will be the one that checks for the first name, as that is the most unique identifier, 
+        and will be the most efficient to check first, 
+        as it will reduce the number of entries for the rest of the algorithms to check through significantly, increasing efficiency drastically.
+        Furthermore, it will also need to be dynamic and be able to check for similar names as well. If I was to type in Osarm it would still return me Usarim.
+        If I was to type Adil, it would show Adeel, and if I was to type in Ayan, it would show me all the Ayans. 
+        This is a very important feature as it will make the search much more user friendly and efficient, as the user may not remember 
+        the exact spelling of the name, but they can still find the person they are looking for with a similar name.
+        We will use alot of Mathematical equtions here. I'll honestly have to wing it alot.
+
+
+        */
+
+        #endregion
+
+        //// First name search algorithm
+        static List<int> getFirsNameResults(string searchName, string[,] database, int index /* This is the index of the name within the database */ )
+        {
+            //// Declaring local variable(s) for the algorithm
+            // List of unique characters within the name itself, all uppercase
+            List<char> searchNameBroken = searchName.ToUpper().ToCharArray().Distinct().ToList();
+            int length = searchNameBroken.Count;
+            List<int> results = [];
+            // List of the indices of the results within the database/ List of the similarity scores for each entry in the database,
+
+
+            // *Sigh* this is gonna be a long one
+            // Using a for loop to check each name in the database one by one
+            for (int i = 0; i < database.GetLength(0); i++)
+            {
+                // Breaking down the name in the database into characters as well, and making them uppercase for uniformity
+                List<char> nameInDatabaseBroken = database[i, index].ToUpper().ToCharArray().Distinct().ToList();
+                // Using a value to check if the name in the database is similar enough to the search name to be a result
+                float similarity = 0;
+                // Boolean to decide whether each index is worth it as a result
+                bool validResult = false;
+
+                // Using a for loop to check each character in the search name against the characters in the name in the database
+                for (int j = 0; j < searchNameBroken.Count; j++)
+                {
+                    // Further nesting another for loop
+                    for (int k = 0; k < nameInDatabaseBroken.Count; k++)
+                    {
+                        // If there is a match between the character in the search name and the character in the name in the database,
+                        // then the similarity score will increase by 1
+                        if (searchNameBroken[j] == nameInDatabaseBroken[k])
+                        {
+                            similarity++;
+                        }
+                    }
+                }
+
+                // Converting the similarity score to a percentage
+                similarity = (similarity / length) * 100;
+
+                // Once all the characters have been checked, the similarity score will be divided by the total number of unique characters
+                // in the search name to get a percentage similarity score. There will also be certain nuemrical thresholds for what counts as a
+                // result, and what doesnt, which will be determined through selection statements,
+                if (length >= 4)
+                {
+                    if (similarity >= 60)
+                        validResult = true;
+                }
+                else if (length == 3)
+                {
+                    if (similarity >= 66.66)
+                        validResult = true;
+                }
+                else if (length >= 2)
+                {
+                    if (similarity == 100)
+                        validResult = true;
+                }
+
+                // Selection statement to decide if the results are worth storing or not, based on the boolean validResult
+                if (validResult)
+                {
+                    results.Add(i);
+                    similarityScores.Add(similarity);
+                }
+            }
+
+            return results;
         }
     }
 }
