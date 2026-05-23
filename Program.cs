@@ -232,7 +232,7 @@ namespace nonlinearSearch
         static List<float> similarityScores = [];
 
         #endregion
-
+        
         static void Main(string[] args)
         {
 
@@ -580,7 +580,7 @@ namespace nonlinearSearch
                         Console.WriteLine("Fields not cleared. Returning to menu...");
 
                     // Pausing the menu to let the user read what's actually happening before returning to the menu
-                    Thread.Sleep(2500);
+                    Thread.Sleep(1500);
                 }
 
             #endregion
@@ -664,23 +664,109 @@ namespace nonlinearSearch
                         if (!swapped)
                             break;
                     }
-                    
 
-                    clear();
+                    /* 
+                    Now that most of everything has been handled, we can finally focus on clearing out the extra
+                    results from the list. This will take longer to add as it must have parameters and no easy way 
+                    to look at things. 
+                    How this will work is that there will be one parent for loop. In that for loop, there will be multiple
+                    selection statements for different things. Depending on these different things, a boolean will be raised as a
+                    flag. This flag can THEN be used to delete any un-needed results from the list as a whole.
+                    There will also be a threshold that will be needed as the base percentage that will be used to compare any condition
+                    as found as nessacary. This will be decided through selection statements before the for loop.
+                    */
 
-                    // Now that everything is sorted right, we can FINALLY display all of the results neatly.
-                    Console.WriteLine("Search results: ");
+                    float threshold = 0;
 
-                    if (fieldsSelected != 0)
-                        for (int i = 0; i < searchResults.Count; i++)
+                    // Selection statements to designate threshold
+                    if (fieldsSelected == 1)
+                    {
+                        if (isNameNull)
+                            threshold = 90;
+                        else 
+                            threshold = (2f / 3f) * 100; // The f is added to clarify to C# that this is meant to be a fractal division
+                    }
+                    else if (fieldsSelected == 0)
+                    {
+                        if (!isNameNull)
+                            threshold = 50;
+                        else
+                            threshold = 0; // If no field was added at ALL, then the threshold will be 0.
+                    } else if (fieldsSelected > 1 && isNameNull)
+                    {
+                        if (fieldsSelected >= 3)
+                            threshold = 75;
+                        else if (fieldsSelected == 2)
+                            threshold = 90;
+                    }
+
+                    // Running through the entire list again to remove those indexes that do not meet the threshold
+                    for (int i = 0; i < searchResults.Count(); i++)
+                    {
+                        float similarityPercentage = (similarityScores[i] / totalSimilarityPoints) * 100;
+                        if (similarityPercentage < threshold)
                         {
-                            int index = searchResults[i];
-                            // Displaying the record in a neat way, along with the similarity score for the record as well
-                            Console.WriteLine($"{i + 1}. {hostTeam[index, 0]}, {hostTeam[index, 4]} of {hostTeam[index, 3]}");
+                            // Remove the result if it doesn't meet the threshold
+                            searchResults.RemoveAt(i);
+                            similarityScores.RemoveAt(i);
+                            i--; // Adjust the index after removal
                         }
+                    }
 
-                    // Neatness
-                    Console.Read();
+                    // Big while loop to handle the display of the results,
+                    // and the selection of the results for further details, or to return to the menu
+                    while (true)
+                    {
+                        clear();
+
+                        // For the sake of clean presentation, we will make EC into the Executive Council
+                        if (dept == "EC")
+                            dept = "Executive Council";
+
+                        // I miss my wife
+
+                        // Now that everything is sorted right, we can FINALLY display all of the results neatly.
+                        Console.WriteLine("Search results: ");
+
+                        if (searchResults.Count != 0)
+                            for (int i = 0; i < searchResults.Count; i++)
+                            {
+                                int index = searchResults[i];
+                                // Displaying the record in a neat way, along with the similarity score for the record as well
+                                Console.WriteLine($"{i + 1}. {hostTeam[index, 0]}, {hostTeam[index, 4]} of {hostTeam[index, 3]}");
+                            }
+                        else { Console.WriteLine("No results found for the given search criteria."); }
+
+                        Console.WriteLine($"\n{searchResults.Count+1}. Back to the menu");
+
+                        // Taking input to who further details about the results, or to return to the menu
+                        Console.Write("Enter the number corresponding the result you would like to see further details about: ");
+                        menuChoice = Console.ReadLine();
+
+                        // TryParse-ing the value to ensure that it is an integer, and to use it for selection
+                        int choiceInteger;
+                        bool isParsable;
+
+                        isParsable = int.TryParse(menuChoice, out choiceInteger);
+                        if (isParsable)
+                        {
+                            choiceInteger--; // Decrementing to make it usable for the array
+                            if (choiceInteger == (searchResults.Count)) // This is the option to return to the menu
+                            {
+                                break;
+                            }
+                            else if (inRange(choiceInteger, searchResults.ToArray())) // This checks if the value is in range for the search results, and if it is, it will display further details about the result
+                            {
+                                clear();
+                                int index = searchResults[choiceInteger];
+                                Console.WriteLine($"Name: {hostTeam[index, 0]}\nGender: {hostTeam[index, 1]}\nSection: {hostTeam[index, 2]}\nDepartment: {hostTeam[index, 3]}\nPosition: {hostTeam[index, 4]}");
+                                Console.WriteLine("\nPress [ENTER] to return to the results...");
+                                Console.ReadLine();
+                                clear();
+                            }
+                        }
+                    
+                    }
                 }
             }
 
@@ -731,7 +817,7 @@ namespace nonlinearSearch
                 //// Declaring local variable(s) for the algorithm
                 // List of unique characters within the name itself, all uppercase
                 List<char> searchNameBroken = searchName.ToUpper().ToCharArray().Distinct().ToList();
-                int length = searchNameBroken.Count;
+                int length = 0;
                 List<int> localResults = [];
                 // List of the indices of the results within the database/ List of the similarity scores for each entry in the database,
 
@@ -740,12 +826,18 @@ namespace nonlinearSearch
                 // Using a for loop to check each name in the database one by one
                 for (int i = 0; i < database.GetLength(0); i++)
                 {
+                    // Extracting ONLY the first name from the database entry
+                    string dbFullName = database[i, index];
+                    string dbFirstName = dbFullName.Split(' ')[0]; // Assuming the first name is the first word in the full name
+
                     // Breaking down the name in the database into characters as well, and making them uppercase for uniformity
-                    List<char> nameInDatabaseBroken = database[i, index].ToUpper().ToCharArray().Distinct().ToList();
+                    List<char> nameInDatabaseBroken = dbFirstName.ToUpper().ToCharArray().Distinct().ToList();
                     // Using a value to check if the name in the database is similar enough to the search name to be a result
                     float similarity = 0;
                     // Boolean to decide whether each index is worth it as a result
                     bool validResult = false;
+                    // Initialising length for each name individually
+                    length = nameInDatabaseBroken.Count;
 
                     // Using a for loop to check each character in the search name against the characters in the name in the database
                     for (int j = 0; j < searchNameBroken.Count; j++)
@@ -804,8 +896,8 @@ namespace nonlinearSearch
                     // Very complicated selection condition but stay with me here
                     if (database[results[i] /* <----- Important: results[i] is the index of the result within the database itself. */, index] == field)
                     {
-                        // If there is a direct match for the field, 20 point will be added to the similarity score
-                        similarityScores[i] += 20;
+                        // If there is a direct match for the field, 25 point will be added to the similarity score
+                        similarityScores[i] += 25;
                     }
                 }
             }
